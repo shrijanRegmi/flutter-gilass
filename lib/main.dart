@@ -1,8 +1,11 @@
+import 'package:drink/services/local_notification_provider.dart';
 import 'package:drink/wrapper.dart';
 import 'package:drink/wrapper_builder.dart';
 import 'package:flutter/material.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotificationProvider().initialize();
 
-void main() {
   runApp(MyApp());
 }
 

@@ -26,6 +26,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   flutter_svg: ^0.18.0
   lottie: ^0.7.0+1
+  flutter_local_notifications: ^3.0.3
   provider: ^4.3.3
 
 dev_dependencies:

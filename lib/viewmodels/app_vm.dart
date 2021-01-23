@@ -8,6 +8,7 @@ class AppVm extends ChangeNotifier {
   static var _targetWater = 0;
   var _remainingWater = _targetWater;
   var _waterToDrink = 200;
+  var _minutesToNotify = 0;
   // Standard Values
 
   var _goalValue = 0.0;
@@ -18,6 +19,7 @@ class AppVm extends ChangeNotifier {
   int get remainingWater => _remainingWater;
   int get targetWater => _targetWater;
   int get waterToDrink => _waterToDrink;
+  int get minutesToNotify => _minutesToNotify;
 
   // on water drink
   onWaterDrink(final double newGoalValue) {
@@ -72,6 +74,12 @@ class AppVm extends ChangeNotifier {
   // update value of target water intake
   updateTargetValue(final double newVal) {
     _targetWater = int.parse('${newVal.toStringAsFixed(0)}');
+    notifyListeners();
+  }
+
+  // update value of minutes to notify
+  updateMinutesToNotify(final int newVal) {
+    _minutesToNotify = newVal;
     notifyListeners();
   }
 }
