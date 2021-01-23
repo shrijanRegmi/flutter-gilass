@@ -24,8 +24,11 @@ class HomeScreen extends StatelessWidget {
                       height: 20.0,
                     ),
                     Container(
-                      height: 400.0,
+                      height: 300.0,
                       child: PercentageOverview(vm),
+                    ),
+                    SizedBox(
+                      height: 10.0,
                     ),
                     Column(
                       children: [

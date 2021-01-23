@@ -106,9 +106,10 @@ class DrinkTime extends StatelessWidget {
 
   Widget _emptyBuilder() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30.0),
+      padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
       child: Text(
-        "You haven't drank water today !",
+        "You haven't drank water today !\nTap on the glass of water on the top right corner of the screen to drink.",
+        textAlign: TextAlign.center,
       ),
     );
   }

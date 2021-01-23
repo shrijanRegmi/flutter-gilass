@@ -12,10 +12,10 @@ class PercentageOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _headerBuilder(),
-        SizedBox(
-          height: 10.0,
-        ),
+        // _headerBuilder(),
+        // SizedBox(
+        //   height: 10.0,
+        // ),
         Expanded(
           child: Goals(min(vm.goalValue, 100)),
         ),
