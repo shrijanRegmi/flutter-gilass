@@ -1,18 +1,21 @@
 import 'dart:math';
 
+import 'package:drink/models/app_models/appuser_model.dart';
 import 'package:drink/models/app_models/drink_time_model.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class AppVm extends ChangeNotifier {
   // Standard Values
-  static var _targetWater = 0;
-  var _remainingWater = _targetWater;
+  var _targetWater = 0;
+  var _remainingWater = 0;
   var _waterToDrink = 200;
   var _minutesToNotify = 0;
   // Standard Values
 
   var _goalValue = 0.0;
   var _drinkTimes = <DrinkTime>[];
+  var _isLoading = false;
 
   double get goalValue => _goalValue;
   List<DrinkTime> get drinkTimes => _drinkTimes;
@@ -20,6 +23,26 @@ class AppVm extends ChangeNotifier {
   int get targetWater => _targetWater;
   int get waterToDrink => _waterToDrink;
   int get minutesToNotify => _minutesToNotify;
+  bool get isLoading => _isLoading;
+
+  // init function
+  onInit(final AppUser appUser) {
+    initialize(appUser);
+  }
+
+  // initialize values
+  initialize(final AppUser appUser) async {
+    final _goalBox = Hive.box('goals');
+    final _drinkTimeBox = Hive.box('drink_time');
+
+    _goalValue = _goalBox.get('goal') ?? 0;
+    _drinkTimes =
+        _drinkTimeBox.values.map((e) => DrinkTime.fromJson(e)).toList();
+    _targetWater = appUser.targetWater;
+    _remainingWater =
+        max(_targetWater - (_goalValue / 100 * _targetWater).toInt(), 0);
+    notifyListeners();
+  }
 
   // on water drink
   onWaterDrink(final double newGoalValue) {
@@ -28,17 +51,25 @@ class AppVm extends ChangeNotifier {
     final _list = _drinkTimes;
     final _index = _list.indexWhere((element) =>
         DateTime.fromMillisecondsSinceEpoch(element.time).hour ==
-        DateTime.now().hour);
+            DateTime.now().hour &&
+        DateTime.now()
+                .difference(DateTime.fromMillisecondsSinceEpoch(element.time))
+                .inMinutes <
+            2);
     if (_index != -1) {
-      _list[_index] = DrinkTime(
+      final _drinkTime = DrinkTime(
         time: _list[_index].time,
         value: min(_list[_index].value + 50, 100),
       );
+      Hive.box('drink_time').putAt(_index, _drinkTime.toJson());
+      _list[_index] = _drinkTime;
     } else {
-      _list.add(DrinkTime(
+      final _drinkTime = DrinkTime(
         time: DateTime.now().millisecondsSinceEpoch,
         value: 50,
-      ));
+      );
+      Hive.box('drink_time').add(_drinkTime.toJson());
+      _list.add(_drinkTime);
     }
 
     updateDrinkTimes(_list);
@@ -48,6 +79,7 @@ class AppVm extends ChangeNotifier {
   updateGoalValue(final double newVal) {
     if (_goalValue < 100) {
       _goalValue = newVal;
+      Hive.box('goals').put('goal', _goalValue);
       notifyListeners();
     }
   }
@@ -55,6 +87,7 @@ class AppVm extends ChangeNotifier {
   // update value of drink times list
   updateDrinkTimes(final List<DrinkTime> newDrinkTimes) {
     _drinkTimes = newDrinkTimes;
+    print(_drinkTimes.map((e) => e.toJson()));
     notifyListeners();
   }
 
@@ -80,6 +113,12 @@ class AppVm extends ChangeNotifier {
   // update value of minutes to notify
   updateMinutesToNotify(final int newVal) {
     _minutesToNotify = newVal;
+    notifyListeners();
+  }
+
+  // update value of loader
+  updateIsLoading(final bool newVal) {
+    _isLoading = newVal;
     notifyListeners();
   }
 }

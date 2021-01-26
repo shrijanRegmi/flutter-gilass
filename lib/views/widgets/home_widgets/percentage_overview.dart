@@ -23,51 +23,51 @@ class PercentageOverview extends StatelessWidget {
     );
   }
 
-  Widget _headerBuilder() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Today',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0,
-              ),
-            ),
-            Icon(
-              Icons.arrow_drop_down,
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 8.0,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _timeBuilder('08:30'),
-            SizedBox(
-              width: 10.0,
-            ),
-            _timeBuilder('20:00'),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _headerBuilder() {
+  //   return Column(
+  //     children: [
+  //       Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           Text(
+  //             'Today',
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.bold,
+  //               fontSize: 16.0,
+  //             ),
+  //           ),
+  //           Icon(
+  //             Icons.arrow_drop_down,
+  //           ),
+  //         ],
+  //       ),
+  //       SizedBox(
+  //         height: 8.0,
+  //       ),
+  //       Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           _timeBuilder('08:30'),
+  //           SizedBox(
+  //             width: 10.0,
+  //           ),
+  //           _timeBuilder('20:00'),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget _timeBuilder(final String title) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      decoration: BoxDecoration(
-        color: Color(0xffeef7fc),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Text(
-        '$title',
-      ),
-    );
-  }
+  // Widget _timeBuilder(final String title) {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+  //     decoration: BoxDecoration(
+  //       color: Color(0xffeef7fc),
+  //       borderRadius: BorderRadius.circular(10.0),
+  //     ),
+  //     child: Text(
+  //       '$title',
+  //     ),
+  //   );
+  // }
 }

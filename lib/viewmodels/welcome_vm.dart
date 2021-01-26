@@ -1,5 +1,6 @@
+import 'package:drink/models/app_models/appuser_model.dart';
+import 'package:drink/services/database/appuser_provider.dart';
 import 'package:drink/viewmodels/app_vm.dart';
-import 'package:drink/views/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,18 +25,22 @@ class WelcomeVm extends ChangeNotifier {
   AppVm get appVm => Provider.of<AppVm>(context, listen: false);
 
   // onpressed hydrate
-  onPressedHydrate() {
+  onPressedHydrate() async {
     if (_nameController.text.trim() != '' &&
         _heightController.text.trim() != '' &&
         _weightController.text.trim() != '' &&
         _exerciseController.text.trim() != '') {
       _calculateDailyIntake();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => HomeScreen(),
-        ),
+
+      final _appUser = AppUser(
+        name: _nameController.text.trim(),
+        height: int.parse(_heightController.text.trim()),
+        weight: int.parse(_weightController.text.trim()),
+        exercise: int.parse(_exerciseController.text.trim()),
+        targetWater: int.parse(_dailyIntake.toStringAsFixed(0)),
       );
+      await AppUserProvider(appUser: _appUser).registerUser();
+      notifyListeners();
     } else {
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
@@ -53,7 +58,5 @@ class WelcomeVm extends ChangeNotifier {
 
     _dailyIntake = (2 / 3 * _wtInPounds + (_exercise / 30 * 12)) * 29.5735;
     notifyListeners();
-
-    appVm.updateTargetValue(_dailyIntake);
   }
 }

@@ -22,11 +22,14 @@ class DrinkTime extends StatelessWidget {
                 itemCount: vm.drinkTimes.length,
                 itemBuilder: (context, index) {
                   final _drinkTime = vm.drinkTimes[index];
-                  final _time =
+                  final _hour =
                       DateTime.fromMillisecondsSinceEpoch(_drinkTime.time).hour;
+                  final _minute =
+                      DateTime.fromMillisecondsSinceEpoch(_drinkTime.time)
+                          .minute;
 
                   return _progressBuilder(
-                    "${_time > 12 ? (_time - 12).toString() : _time} ${_time < 12 ? 'AM' : 'PM'}",
+                    "${_hour > 12 ? (_hour - 12).toString() : _hour} : ${_minute.toString().length == 1 ? '0' + _minute.toString() : _minute} ${_hour < 12 ? 'AM' : 'PM'}",
                     _drinkTime.value,
                   );
                 },

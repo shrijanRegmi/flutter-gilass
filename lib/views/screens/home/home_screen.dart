@@ -1,48 +1,56 @@
+import 'package:drink/models/app_models/appuser_model.dart';
 import 'package:drink/viewmodels/app_vm.dart';
 import 'package:drink/viewmodels/vm_provider.dart';
 import 'package:drink/views/widgets/home_widgets/drink_time.dart';
 import 'package:drink/views/widgets/home_widgets/home_appbar.dart';
 import 'package:drink/views/widgets/home_widgets/percentage_overview.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final _appUser = Provider.of<AppUser>(context);
+    
     return VmProvider<AppVm>(
       vm: AppVm(),
+      boxes: ['drink_time', 'goals'],
+      onInitBuild: (vm) => vm.onInit(_appUser),
       builder: (context, vm, appVm) {
         return Scaffold(
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    HomeAppbar(vm),
-                    SizedBox(
-                      height: 20.0,
+            child: vm.isLoading
+                ? Container()
+                : SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          HomeAppbar(vm),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            height: 300.0,
+                            child: PercentageOverview(vm),
+                          ),
+                          SizedBox(
+                            height: 10.0,
+                          ),
+                          Column(
+                            children: [
+                              _waterStatusBuilder(vm),
+                              SizedBox(
+                                height: 30.0,
+                              ),
+                              DrinkTime(vm),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    Container(
-                      height: 300.0,
-                      child: PercentageOverview(vm),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Column(
-                      children: [
-                        _waterStatusBuilder(vm),
-                        SizedBox(
-                          height: 30.0,
-                        ),
-                        DrinkTime(vm),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
           ),
         );
       },
