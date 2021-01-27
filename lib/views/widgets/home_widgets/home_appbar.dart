@@ -12,7 +12,6 @@ class HomeAppbar extends StatefulWidget {
 
 class _HomeAppbarState extends State<HomeAppbar>
     with SingleTickerProviderStateMixin {
-
   AnimationController _animationController;
 
   Animation<Offset> _animation;
@@ -36,6 +35,12 @@ class _HomeAppbarState extends State<HomeAppbar>
     });
     _animationController.reset();
     _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -72,18 +77,22 @@ class _HomeAppbarState extends State<HomeAppbar>
               ),
               GestureDetector(
                 onTap: () {
-                  _showText();
-                  final _drinkPercentage =
-                      (widget.vm.waterToDrink / widget.vm.targetWater) * 100;
-                  widget.vm
-                      .onWaterDrink(widget.vm.goalValue + _drinkPercentage);
-                  widget.vm.updateRemainingWater(
-                      widget.vm.remainingWater - widget.vm.waterToDrink);
+                  if (widget.vm.dateText == 'Today') {
+                    _showText();
+                    final _drinkPercentage =
+                        (widget.vm.waterToDrink / widget.vm.targetWater) * 100;
+                    widget.vm
+                        .onWaterDrink(widget.vm.goalValue + _drinkPercentage);
+                    widget.vm.updateRemainingWater(
+                        widget.vm.remainingWater - widget.vm.waterToDrink);
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: ThemeData().canvasColor,
+                    color: widget.vm.dateText == 'Today'
+                        ? ThemeData().canvasColor
+                        : Colors.grey.withOpacity(0.2),
                     boxShadow: [
                       BoxShadow(
                         color: Color(0xffd7e9ed),

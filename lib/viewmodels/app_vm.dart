@@ -6,16 +6,24 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class AppVm extends ChangeNotifier {
+  final BuildContext context;
+  AppVm(this.context);
+
   // Standard Values
   var _targetWater = 0;
   var _remainingWater = 0;
   var _waterToDrink = 200;
   var _minutesToNotify = 0;
+  final _currentDate =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   // Standard Values
 
   var _goalValue = 0.0;
   var _drinkTimes = <DrinkTime>[];
   var _isLoading = false;
+  var _selectedDate =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  var _dateText = 'Today';
 
   double get goalValue => _goalValue;
   List<DrinkTime> get drinkTimes => _drinkTimes;
@@ -24,6 +32,8 @@ class AppVm extends ChangeNotifier {
   int get waterToDrink => _waterToDrink;
   int get minutesToNotify => _minutesToNotify;
   bool get isLoading => _isLoading;
+  DateTime get selectedDate => _selectedDate;
+  String get dateText => _dateText;
 
   // init function
   onInit(final AppUser appUser) {
@@ -32,8 +42,15 @@ class AppVm extends ChangeNotifier {
 
   // initialize values
   initialize(final AppUser appUser) async {
-    final _goalBox = Hive.box('goals');
-    final _drinkTimeBox = Hive.box('drink_time');
+    updateIsLoading(true);
+    await _openBoxes([
+      'drink_time_${_selectedDate.millisecondsSinceEpoch}',
+      'goals_${_selectedDate.millisecondsSinceEpoch}'
+    ]);
+
+    final _goalBox = Hive.box('goals_${_selectedDate.millisecondsSinceEpoch}');
+    final _drinkTimeBox =
+        Hive.box('drink_time_${_selectedDate.millisecondsSinceEpoch}');
 
     _goalValue = _goalBox.get('goal') ?? 0;
     _drinkTimes =
@@ -42,10 +59,29 @@ class AppVm extends ChangeNotifier {
     _remainingWater =
         max(_targetWater - (_goalValue / 100 * _targetWater).toInt(), 0);
     notifyListeners();
+    updateIsLoading(false);
+  }
+
+  // open boxes
+  Future<List<Box>> _openBoxes(final List<String> _boxesToOpen) async {
+    try {
+      var _boxes = <Box>[];
+
+      for (var box in _boxesToOpen) {
+        final _openedBox = await Hive.openBox(box);
+        _boxes.add(_openedBox);
+      }
+
+      print('Success: Opening boxes $_boxesToOpen');
+      return _boxes;
+    } catch (e) {
+      print('Error!!!: Opening boxes $_boxesToOpen');
+      return null;
+    }
   }
 
   // on water drink
-  onWaterDrink(final double newGoalValue) {
+  onWaterDrink(final double newGoalValue) async {
     updateGoalValue(newGoalValue);
 
     final _list = _drinkTimes;
@@ -61,14 +97,16 @@ class AppVm extends ChangeNotifier {
         time: _list[_index].time,
         value: min(_list[_index].value + 50, 100),
       );
-      Hive.box('drink_time').putAt(_index, _drinkTime.toJson());
+      Hive.box('drink_time_${_selectedDate.millisecondsSinceEpoch}')
+          .putAt(_index, _drinkTime.toJson());
       _list[_index] = _drinkTime;
     } else {
       final _drinkTime = DrinkTime(
         time: DateTime.now().millisecondsSinceEpoch,
         value: 50,
       );
-      Hive.box('drink_time').add(_drinkTime.toJson());
+      Hive.box('drink_time_${_selectedDate.millisecondsSinceEpoch}')
+          .add(_drinkTime.toJson());
       _list.add(_drinkTime);
     }
 
@@ -79,7 +117,8 @@ class AppVm extends ChangeNotifier {
   updateGoalValue(final double newVal) {
     if (_goalValue < 100) {
       _goalValue = newVal;
-      Hive.box('goals').put('goal', _goalValue);
+      Hive.box('goals_${_selectedDate.millisecondsSinceEpoch}')
+          .put('goal', _goalValue);
       notifyListeners();
     }
   }
@@ -87,7 +126,6 @@ class AppVm extends ChangeNotifier {
   // update value of drink times list
   updateDrinkTimes(final List<DrinkTime> newDrinkTimes) {
     _drinkTimes = newDrinkTimes;
-    print(_drinkTimes.map((e) => e.toJson()));
     notifyListeners();
   }
 
@@ -120,5 +158,52 @@ class AppVm extends ChangeNotifier {
   updateIsLoading(final bool newVal) {
     _isLoading = newVal;
     notifyListeners();
+  }
+
+  // update value of selected date
+  updateDate(final DateTime newDate) {
+    _selectedDate = newDate;
+    if (newDate == _currentDate) {
+      _dateText = 'Today';
+    } else {
+      _dateText = 'Yesterday';
+    }
+    notifyListeners();
+  }
+
+  // show bottom sheet
+  showBottomSheet(final AppUser appUser) async {
+    final _prevDate =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+            .subtract(Duration(days: 1));
+    final _selectedDate =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text('Today'),
+              onTap: () {
+                Navigator.pop(context);
+                updateDate(_selectedDate);
+                initialize(appUser);
+              },
+            ),
+            ListTile(
+              title: Text('Yesterday'),
+              onTap: () {
+                Navigator.pop(context);
+                updateDate(_prevDate);
+                initialize(appUser);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

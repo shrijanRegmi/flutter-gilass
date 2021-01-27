@@ -11,7 +11,7 @@ class WrapperBuilder extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppVm>(
-          create: (context) => AppVm(),
+          create: (context) => AppVm(context),
         ),
       ],
       child: builder(context),

@@ -37,6 +37,12 @@ class _GoalsState extends State<Goals> with SingleTickerProviderStateMixin {
   }
 
   @override
+  void dispose() { 
+    _animationController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_tween.end != widget.value) {
       _changeVal();

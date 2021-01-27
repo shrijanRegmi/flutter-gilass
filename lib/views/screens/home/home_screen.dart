@@ -11,11 +11,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _appUser = Provider.of<AppUser>(context);
-    
+
     return VmProvider<AppVm>(
-      vm: AppVm(),
-      boxes: ['drink_time', 'goals'],
-      onInitBuild: (vm) => vm.onInit(_appUser),
+      vm: AppVm(context),
+      onInit: (vm) => vm.onInit(_appUser),
       builder: (context, vm, appVm) {
         return Scaffold(
           body: SafeArea(
@@ -32,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                             height: 20.0,
                           ),
                           Container(
-                            height: 300.0,
+                            height: 320.0,
                             child: PercentageOverview(vm),
                           ),
                           SizedBox(
